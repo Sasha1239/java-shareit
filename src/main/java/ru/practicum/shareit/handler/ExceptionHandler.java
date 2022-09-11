@@ -43,9 +43,4 @@ public class ExceptionHandler {
                 "errorMessage", throwable.getMessage()
         );
     }
-
-    @org.springframework.web.bind.annotation.ExceptionHandler
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -57,6 +58,26 @@ public class UserControllerTest extends ShareItTests{
                 "Текст ошибки валидации разный");
     }
 
+    //Создание пользователя с повторяющимся email
+    @Test
+    public void createUserWithRepeatEmail(){
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("Тестовое наименование");
+        userDto.setEmail("test@yandex.ru");
+        userController.create(userDto);
+
+        UserDto userDto1 = new UserDto();
+        userDto1.setId(2L);
+        userDto1.setName("Тестовое наименование1");
+        userDto1.setEmail("test@yandex.ru");
+
+        Throwable throwable = assertThrows(ValidationException.class, () -> userController.create(userDto1));
+
+        assertEquals("Такой email уже используется", throwable.getMessage(),
+                "Текст ошибки валидации разный");
+    }
+
     //Обновление несуществующего пользователя
     @Test
     public void updateUnknownUser(){
@@ -92,6 +113,26 @@ public class UserControllerTest extends ShareItTests{
         userController.update(1L, userDto1);
 
         assertEquals(userController.getUser(1L), userDto1, "Пользователь не обновился");
+    }
+
+    //Создание пользователя с повторяющимся email
+    @Test
+    public void updateUserWithRepeatEmail(){
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("Тестовое наименование");
+        userDto.setEmail("test@yandex.ru");
+        userController.create(userDto);
+
+        UserDto userDto1 = new UserDto();
+        userDto1.setId(2L);
+        userDto1.setName("Тестовое наименование1");
+        userDto1.setEmail("test@yandex.ru");
+
+        Throwable throwable = assertThrows(ValidationException.class, () -> userController.create(userDto1));
+
+        assertEquals("Такой email уже используется", throwable.getMessage(),
+                "Текст ошибки валидации разный");
     }
 
     //Удаление существующего пользователя
