@@ -14,7 +14,7 @@ class ShareItTests {
     protected static Validator validator;
 
     @BeforeAll
-    public static void BeforeAll() {
+    public static void BeforeAllTests() {
         try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
             validator = validatorFactory.getValidator();
         }
