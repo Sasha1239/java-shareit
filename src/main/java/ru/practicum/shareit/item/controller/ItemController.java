@@ -22,15 +22,15 @@ public class ItemController {
 
     @PostMapping()
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                   @Valid @RequestBody ItemDto itemDto) {
+                          @Valid @RequestBody ItemDto itemDto) {
         log.info("Создана вещь с id = {} у пользователя с id = {}", itemDto.getId(), userId);
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
-                   @PathVariable long itemId,
-                   @RequestBody ItemDto itemDto) {
+                          @PathVariable long itemId,
+                          @RequestBody ItemDto itemDto) {
         log.info("Обновлена вещь с id = {}", itemId);
         return itemService.update(userId, itemId, itemDto);
     }

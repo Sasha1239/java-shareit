@@ -1,10 +1,11 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.controller.UserController;
@@ -18,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class UserControllerTest extends ShareItTests{
+public class UserControllerTest extends ShareItTests {
     private final UserController userController;
 
     //Создание валидного пользователя
     @Test
-    public void createValidUser(){
+    public void createValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -36,7 +37,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Создание пользователя с пустым именем
     @Test
-    public void createUserWithEmptyName(){
+    public void createUserWithEmptyName() {
         UserDto userDto = new UserDto();
         userDto.setEmail("test@yandex.ru");
 
@@ -48,7 +49,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Создание пользователя с пустым email
     @Test
-    public void createUserWithEmptyEmail(){
+    public void createUserWithEmptyEmail() {
         UserDto userDto = new UserDto();
         userDto.setName("Тестовое наименование");
 
@@ -60,7 +61,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Создание пользователя с повторяющимся email
     @Test
-    public void createUserWithRepeatEmail(){
+    public void createUserWithRepeatEmail() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -80,7 +81,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Обновление несуществующего пользователя
     @Test
-    public void updateUnknownUser(){
+    public void updateUnknownUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -99,7 +100,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Обновление пользователя
     @Test
-    public void updateValidUser(){
+    public void updateValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -117,7 +118,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Создание пользователя с повторяющимся email
     @Test
-    public void updateUserWithRepeatEmail(){
+    public void updateUserWithRepeatEmail() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -137,7 +138,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Удаление существующего пользователя
     @Test
-    public void deleteValidUser(){
+    public void deleteValidUser() {
         UserDto userDto = new UserDto();
         userDto.setName("Тестовое наименование");
         userDto.setEmail("test@yandex.ru");
@@ -152,7 +153,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Удаление существующего пользователя
     @Test
-    public void deleteUnknownUser(){
+    public void deleteUnknownUser() {
         Throwable throwable = assertThrows(NotFoundException.class, () -> userController.delete(1L));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
@@ -161,7 +162,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Получение пользователя
     @Test
-    public void getValidUser(){
+    public void getValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -175,7 +176,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Получение неизвестного пользователя
     @Test
-    public void getUnknownUser(){
+    public void getUnknownUser() {
         Throwable throwable = assertThrows(NotFoundException.class, () -> userController.getUser(1L));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
@@ -184,7 +185,7 @@ public class UserControllerTest extends ShareItTests{
 
     //Получение всех пользователей
     @Test
-    public void getAllUser(){
+    public void getAllUser() {
         UserDto userDto = new UserDto();
         userDto.setName("Тестовое наименование");
         userDto.setEmail("test@yandex.ru");

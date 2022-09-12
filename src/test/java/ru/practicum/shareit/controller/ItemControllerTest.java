@@ -1,10 +1,11 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -19,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ItemControllerTest extends ShareItTests{
+public class ItemControllerTest extends ShareItTests {
     private final ItemController itemController;
     private final UserController userController;
 
     //Создание вещи
     @Test
-    public void createValidItemWithValidUser(){
+    public void createValidItemWithValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -44,7 +45,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Создание с неизвестным пользователем
     @Test
-    public void createValidItemWithUnknownUser(){
+    public void createValidItemWithUnknownUser() {
         ItemDto itemDto = new ItemDto();
         itemDto.setId(1L);
         itemDto.setName("Тестовое наименование");
@@ -59,7 +60,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Создание вещи c пустым описанием
     @Test
-    public void createValidItemWithEmptyName(){
+    public void createValidItemWithEmptyName() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -82,7 +83,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Создание вещи c пустым описанием
     @Test
-    public void createValidItemWithEmptyDescription(){
+    public void createValidItemWithEmptyDescription() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -105,7 +106,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Создание вещи c пустым статусом
     @Test
-    public void createValidItemWithNullAvailable(){
+    public void createValidItemWithNullAvailable() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -129,7 +130,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Обновление вещи
     @Test
-    public void updateValidItemWithValidUser(){
+    public void updateValidItemWithValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -155,7 +156,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Обновление чужой вещи
     @Test
-    public void updateAlienItemWithValidUser(){
+    public void updateAlienItemWithValidUser() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -184,7 +185,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Получение существующей вещи
     @Test
-    public void getValidItem(){
+    public void getValidItem() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -205,7 +206,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Получение несуществующей вещи
     @Test
-    public void getUnknownItem(){
+    public void getUnknownItem() {
         Throwable throwable = assertThrows(NotFoundException.class, () -> itemController.getItem(1L));
 
         assertEquals("Неверный идентификатор вещи", throwable.getMessage(),
@@ -214,7 +215,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Получение всех вещей пользователя
     @Test
-    public void getAllItems(){
+    public void getAllItems() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -242,7 +243,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Поиск вещи по названию
     @Test
-    public void searchItemName(){
+    public void searchItemName() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -263,7 +264,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Поиск вещи по названию
     @Test
-    public void searchItemDescription(){
+    public void searchItemDescription() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setName("Тестовое наименование");
@@ -284,7 +285,7 @@ public class ItemControllerTest extends ShareItTests{
 
     //Поиск несуществующей вещи
     @Test
-    public void searchUnknownItem(){
+    public void searchUnknownItem() {
         List<ItemDto> itemDtoList = itemController.search("Те");
 
         assertEquals(itemDtoList.size(), 0, "Вещь найдена");

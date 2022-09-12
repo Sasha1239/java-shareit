@@ -9,17 +9,19 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 @SpringBootTest
+public
 class ShareItTests {
-	protected static Validator validator;
-	@BeforeAll
-	public static void BeforeAll(){
-		try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()){
-			validator = validatorFactory.getValidator();
-		}
-	}
+    protected static Validator validator;
 
-	@Test
-	void contextLoads() {
-	}
+    @BeforeAll
+    public static void BeforeAll() {
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            validator = validatorFactory.getValidator();
+        }
+    }
+
+    @Test
+    void contextLoads() {
+    }
 
 }
