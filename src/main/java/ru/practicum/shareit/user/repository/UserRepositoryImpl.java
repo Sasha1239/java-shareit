@@ -20,15 +20,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     //Обновление пользователя
     @Override
-    public Optional<User> update(User user) {
+    public User update(User user) {
         userList.put(user.getId(), user);
-        return Optional.of(user);
+        return user;
     }
 
     //Удаление пользователя
     @Override
     public void delete(Long userId) {
-        getUser(userId);
         userList.remove(userId);
     }
 

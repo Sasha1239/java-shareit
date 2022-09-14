@@ -1,9 +1,12 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 public class ItemRepositoryImpl implements ItemRepository {
@@ -26,14 +29,32 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     //Обновление вещи
     @Override
-    public Optional<Item> update(Item item) {
+    public Item update(Item item) {
         itemList.put(item.getId(), item);
-        return Optional.of(item);
+        return item;
     }
 
     //Получение всех вещей
     @Override
     public List<Item> getAll() {
         return new ArrayList<>(itemList.values());
+    }
+
+    @Override
+    public List<Item> search(String text) {
+        final String searchText = text.toLowerCase();
+
+        if (text.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        Predicate<Item> inName = item -> item.getName().toLowerCase().contains(searchText);
+        Predicate<Item> inDesc = item -> item.getDescription().toLowerCase().contains(searchText);
+
+        return getAll()
+                .stream()
+                .filter(inName.or(inDesc))
+                .filter(Item::getAvailable)
+                .collect(Collectors.toList());
     }
 }

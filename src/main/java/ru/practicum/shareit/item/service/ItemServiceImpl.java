@@ -7,13 +7,12 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,14 +41,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-        if (userRepository.getUser(userId).isEmpty()
-                || itemRepository.getItem(itemId).isEmpty()
-                || !itemRepository.getItem(itemId).get().getOwner().getId().equals(userId)) {
+        Item item = itemRepository.getItem(itemId).orElseThrow(() ->
+                new NotFoundException("Неверный идентификатор вещи"));
+
+        if (userRepository.getUser(userId).isEmpty() || !item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Нельзя изменить чужую вещь");
         }
-
-        Item item = itemRepository.getItem(itemId).orElseThrow(() ->
-                new NotFoundException("Неверный идентификатор пользователя"));
 
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());
@@ -60,8 +57,8 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        if (itemDto.getRequest() != null) {
-            item.setRequest(itemDto.getRequest());
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(new ItemRequest());
         }
 
         itemRepository.update(item);
@@ -88,18 +85,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(String text) {
-        if (text.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        Predicate<Item> inName = item -> item.getName().toLowerCase().contains(text.toLowerCase());
-        Predicate<Item> inDesc = item -> item.getDescription().toLowerCase().contains(text.toLowerCase());
-
-        return itemRepository.getAll()
-                .stream()
-                .filter(inName.or(inDesc))
-                .filter(Item::getAvailable)
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemRepository.search(text).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 }

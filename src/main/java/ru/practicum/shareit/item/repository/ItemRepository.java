@@ -10,7 +10,9 @@ public interface ItemRepository {
 
     Optional<Item> getItem(Long itemId);
 
-    Optional<Item> update(Item item);
+    Item update(Item item);
 
     List<Item> getAll();
+
+    List<Item> search(String text);
 }

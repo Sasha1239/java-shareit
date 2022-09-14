@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -21,5 +20,5 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Статус не может быть null")
     private Boolean available;
-    private ItemRequest request;
+    private Long requestId;
 }

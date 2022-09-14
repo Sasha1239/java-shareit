@@ -177,7 +177,7 @@ public class ItemControllerTest extends ShareItTests {
         itemDto1.setAvailable(true);
 
         Throwable throwable = assertThrows(NotFoundException.class, () ->
-                itemController.update(1L, 2L, itemDto1));
+                itemController.update(2L, 1L, itemDto1));
 
         assertEquals("Нельзя изменить чужую вещь", throwable.getMessage(),
                 "Текст ошибки валидации разный");
