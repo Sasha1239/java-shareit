@@ -82,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
 
         ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoWithBooking(item);
 
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             createItemDtoWithBooking(itemDtoBooking);
         }
 
