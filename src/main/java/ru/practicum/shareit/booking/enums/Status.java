@@ -8,5 +8,6 @@ public enum Status {
     ALL,
     CURRENT,
     PAST,
-    FUTURE
+    FUTURE,
+    UNSUPPORTED_STATUS
 }

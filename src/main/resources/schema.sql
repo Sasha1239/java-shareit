@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS items (
     description VARCHAR(255) NOT NULL,
     available boolean NOT NULL,
     owner_id BIGINT,
+    request_id BIGINT,
     CONSTRAINT fk_items_to_users FOREIGN KEY(owner_id) REFERENCES users(user_id)
     );
 

@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.enums.Status;
@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
@@ -165,10 +165,10 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Неверный идентификатор пользователя"));
 
-        if (bookingRepository.searchBookingByBookerIdAndItemIdAndEndIsBefore(userId, itemId, LocalDateTime.now())
-                .stream().noneMatch(booking -> booking.getStatus().equals(Status.APPROVED))) {
-            throw new ValidationException("Пользователь с id = " + userId + " не брал в аренду вещь с id = " + itemId);
-        }
+        bookingRepository.searchBookingByBookerIdAndItemIdAndEndIsBefore(userId, itemId, LocalDateTime.now())
+                .stream()
+                .filter(booking -> booking.getStatus().equals(Status.APPROVED)).findAny()
+                .orElseThrow(() -> new ValidationException("Пользователь с id = " + userId + " не брал в аренду вещь с id = " + itemId));
 
         Comment comment = CommentMapper.toComment(commentDto);
         comment.setItem(item);

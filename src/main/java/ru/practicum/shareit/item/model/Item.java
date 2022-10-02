@@ -17,9 +17,9 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
     private Long id;
-    @Column(name = "item_name", nullable = false)
+    @Column(name = "item_name", nullable = false, length = 255)
     private String name;
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 255)
     private String description;
     @Column(name = "available", nullable = false)
     private Boolean available;
