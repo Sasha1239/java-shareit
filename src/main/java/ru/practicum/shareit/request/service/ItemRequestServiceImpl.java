@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         return itemRequestRepository.findAll(pageable)
                 .stream()
-                .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
+                .filter(itemRequest -> !Objects.equals(itemRequest.getRequestor().getId(), userId))
                 .map(itemRequestMapper::toItemRequestDtoWithItems)
                 .collect(Collectors.toList());
     }
