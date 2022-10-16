@@ -12,10 +12,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoSimple;
+import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -43,6 +45,9 @@ public class BookingServiceTest {
     private ItemRepository itemRepository;
     private UserRepository userRepository;
     private Booking booking;
+    private Item item;
+    private User booker;
+    private User owner;
 
 
     @BeforeEach
@@ -55,13 +60,14 @@ public class BookingServiceTest {
     }
 
     private Booking createBookingExample() {
-        User owner = new User(1L, "testOwner", "testOwner@yandex.ru");
-        User booker = new User(2L, "testBooker", "testBooker@yandex.ru");
-        Item item = new Item(1L, "testItem", "testDescription", true, owner, null);
+        owner = new User(1L, "testOwner", "testOwner@yandex.ru");
+        booker = new User(2L, "testBooker", "testBooker@yandex.ru");
+        item = new Item(1L, "testItem", "testDescription", true, owner, null);
 
-        LocalDateTime start = LocalDateTime.parse("2022-09-10T10:42");
-        LocalDateTime end = LocalDateTime.parse("2022-09-12T10:42");
-        return new Booking(1L, start, end, item, booker, APPROVED);
+        LocalDateTime start = LocalDateTime.now().minusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+        booking = new Booking(1L, start, end, item, booker, APPROVED);
+        return booking;
     }
 
     private static BookingDtoSimple toBookingDtoSimple(Booking booking) {
@@ -93,7 +99,7 @@ public class BookingServiceTest {
 
     //Получение брони
     @Test
-    void getBooking() {
+    public void getBooking() {
         Long bookerId = booking.getBooker().getId();
         Long bookingId = booking.getId();
 
@@ -108,12 +114,11 @@ public class BookingServiceTest {
         assertEquals(booking.getStatus(), bookingDto.getStatus(), "Статусы не совпадают");
 
         verify(bookingRepository, times(1)).findById(bookingId);
-
     }
 
     //Получение всех броней
     @Test
-    void getAllBookings() {
+    public void getAllBookings() {
         Long bookerId = booking.getBooker().getId();
         User booker = booking.getBooker();
 
@@ -137,7 +142,7 @@ public class BookingServiceTest {
 
     //Получение всех броней со статусом WAITING
     @Test
-    void getAllBookingWaiting() {
+    public void getAllBookingWaiting() {
         Long bookerId = booking.getBooker().getId();
         User booker = booking.getBooker();
 
@@ -163,7 +168,7 @@ public class BookingServiceTest {
 
     //Получение всех броней со статусом REJECTED
     @Test
-    void getAllBookingsRejected() {
+    public void getAllBookingsRejected() {
         Long bookerId = booking.getBooker().getId();
         User booker = booking.getBooker();
 
@@ -189,7 +194,7 @@ public class BookingServiceTest {
 
     //Получение всех бронирований пользователя
     @Test
-    void getAllUserBookings() {
+    public void getAllUserBookings() {
         User booker = booking.getBooker();
         Long itemUserId = booking.getItem().getOwner().getId();
 
@@ -212,9 +217,63 @@ public class BookingServiceTest {
                 PageRequest.of(0, 20, Sort.by("start").descending()));
     }
 
+    //Получение всех бронирований пользователя со статусом WAITING
+    @Test
+    public void getAllUserBookingsWaiting() {
+        User booker = booking.getBooker();
+        Long itemUserId = booking.getItem().getOwner().getId();
+
+        booking.setStatus(WAITING);
+
+        when(userRepository.findById(itemUserId)).thenReturn(Optional.of(booker));
+        when(bookingRepository.findBookingsByItemOwnerIdAndStatus(itemUserId, WAITING,
+                PageRequest.of(0, 20, Sort.by("start").descending())))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingDto> bookingDtoList = bookingService.getAllBookingByOwner(itemUserId, "WAITING", 0, 20);
+
+
+        assertEquals(bookingDtoList.size(), 1, "Бронь отсутствует");
+        assertEquals(booking.getId(), bookingDtoList.get(0).getId(), "Идентификаторы не совпадают");
+        assertEquals(booking.getStart(), bookingDtoList.get(0).getStart(), "Время начала не совпадает");
+        assertEquals(booking.getEnd(), bookingDtoList.get(0).getEnd(), "Время конца не совпадает");
+        assertEquals(booking.getBooker().getName(), bookingDtoList.get(0).getBooker().getName(),
+                "Имена не совпадают");
+
+        verify(bookingRepository, times(1)).findBookingsByItemOwnerIdAndStatus(itemUserId, WAITING,
+                PageRequest.of(0, 20, Sort.by("start").descending()));
+    }
+
+    //Получение всех бронирований пользователя со статусом REJECTED
+    @Test
+    public void getAllUserBookingsRejected() {
+        User booker = booking.getBooker();
+        Long itemUserId = booking.getItem().getOwner().getId();
+
+        booking.setStatus(REJECTED);
+
+        when(userRepository.findById(itemUserId)).thenReturn(Optional.of(booker));
+        when(bookingRepository.findBookingsByItemOwnerIdAndStatus(itemUserId, REJECTED,
+                PageRequest.of(0, 20, Sort.by("start").descending())))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingDto> bookingDtoList = bookingService.getAllBookingByOwner(itemUserId, "REJECTED", 0, 20);
+
+
+        assertEquals(bookingDtoList.size(), 1, "Бронь отсутствует");
+        assertEquals(booking.getId(), bookingDtoList.get(0).getId(), "Идентификаторы не совпадают");
+        assertEquals(booking.getStart(), bookingDtoList.get(0).getStart(), "Время начала не совпадает");
+        assertEquals(booking.getEnd(), bookingDtoList.get(0).getEnd(), "Время конца не совпадает");
+        assertEquals(booking.getBooker().getName(), bookingDtoList.get(0).getBooker().getName(),
+                "Имена не совпадают");
+
+        verify(bookingRepository, times(1)).findBookingsByItemOwnerIdAndStatus(itemUserId, REJECTED,
+                PageRequest.of(0, 20, Sort.by("start").descending()));
+    }
+
     //Подтверждение подтвержденной брони
     @Test
-    public void approveBookingApprovedTest() {
+    public void approveBookingApproved() {
         Long bookingId = booking.getId();
         Long itemUserId = booking.getItem().getOwner().getId();
 
@@ -229,5 +288,49 @@ public class BookingServiceTest {
                 "Текст ошибки не совпадает");
 
         verify(bookingRepository, times(1)).findById(bookingId);
+    }
+
+    //Создание брони c неизвестным пользователем
+    @Test
+    public void createBookingUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                bookingService.create(toBookingDtoSimple(booking), 3L));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    //Получение брони с неизвестной бронью
+    @Test
+    public void getUnknownBooking() {
+        Long bookingId = booking.getId();
+
+        when(bookingRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор брони"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                bookingService.getBooking(bookingId, 3L));
+
+        assertEquals("Неверный идентификатор брони", throwable.getMessage(),
+                "Неверный идентификатор брони");
+
+        verify(bookingRepository, times(1)).findById(anyLong());
+    }
+
+    //Получение всех бронирований с несуществующим пользователем
+    @Test
+    public void getAllBookingsUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                bookingService.getAll(3L, "ALL", 0, 20));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
     }
 }

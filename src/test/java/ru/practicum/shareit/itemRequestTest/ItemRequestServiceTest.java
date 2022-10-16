@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoWithItems;
@@ -51,8 +52,9 @@ public class ItemRequestServiceTest {
         return new ItemRequest(1L, "itemRequestDescription", user, LocalDateTime.now());
     }
 
+    //Создание запроса
     @Test
-    void createValidItemRequest() {
+    public void createValidItemRequest() {
         Long itemRequestId = itemRequest.getId();
         Long userId = itemRequest.getRequestor().getId();
         User user = itemRequest.getRequestor();
@@ -72,7 +74,7 @@ public class ItemRequestServiceTest {
 
     //Получение запроса
     @Test
-    void getItemRequest() {
+    public void getItemRequest() {
         Long itemRequestId = itemRequest.getId();
         Long userId = itemRequest.getRequestor().getId();
         User user = itemRequest.getRequestor();
@@ -92,7 +94,7 @@ public class ItemRequestServiceTest {
 
     //Получение всех запросов
     @Test
-    void getAllItemRequests() {
+    public void getAllItemRequests() {
         Long itemRequestId = itemRequest.getId();
         Long userId = itemRequest.getRequestor().getId();
         User user = itemRequest.getRequestor();
@@ -119,7 +121,7 @@ public class ItemRequestServiceTest {
 
     //Получение всех запросов с страниц (пустой)
     @Test
-    void getAllItemRequestWithPageableEmpty() {
+    public void getAllItemRequestWithPageableEmpty() {
         Long userId = itemRequest.getRequestor().getId();
         User user = itemRequest.getRequestor();
 
@@ -137,5 +139,63 @@ public class ItemRequestServiceTest {
 
         verify(itemRequestRepository, times(1))
                 .findAll(PageRequest.of(0, 20, Sort.by("created")));
+    }
+
+    //Создание запроса с несуществующем пользователем
+    @Test
+    public void createItemRequestUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор запроса"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemRequestService.create(itemRequestMapper.toItemRequestDto(itemRequest), 3L));
+
+        assertEquals("Неверный идентификатор запроса", throwable.getMessage(),
+                "Неверный идентификатор запроса");
+
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    //Получение запроса с несуществующем пользователем
+    @Test
+    public void getItemRequestUnknownUser() {
+        Long itemRequestId = itemRequest.getId();
+
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemRequestService.getItemRequest(3L, itemRequestId));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    //Получение всех запросов с несуществующем пользователем
+    @Test
+    public void getAllItemRequestsUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemRequestService.getAll(3L));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    //Получение всех запросов с страниц с несуществующим пользователем
+    @Test
+    public void getAllItemRequestWithPageableUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemRequestService.getAllWithPageable(3L, 0, 20));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
     }
 }

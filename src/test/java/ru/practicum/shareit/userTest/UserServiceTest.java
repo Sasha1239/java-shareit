@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -16,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -126,5 +127,35 @@ public class UserServiceTest {
         userService.delete(user.getId());
 
         verify(userRepository, times(1)).deleteById(user.getId());
+    }
+
+    //Получение несуществующего пользователя
+    @Test
+    public void getUnknownUser() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () -> userService.getUser(2L));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    //Обновление несуществующего пользователя
+    @Test
+    public void updateUnknownUser() {
+        User user1 = createValidUserExample();
+        user1.setName("test1");
+
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                userService.update(2L, UserMapper.toUserDto(user1)));
+
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
+
+        verify(userRepository, times(1)).findById(anyLong());
     }
 }

@@ -67,22 +67,42 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Неверный идентификатор вещи"));
 
-        if (userRepository.findById(userId).isEmpty() || !item.getOwner().getId().equals(userId)) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Нельзя изменить чужую вещь");
         }
-
-        if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
-        }
-
-        itemRepository.save(item);
+            if (itemDto.getName() != null) {
+                item.setName(itemDto.getName());
+            }
+            if (itemDto.getDescription() != null) {
+                item.setDescription(itemDto.getDescription());
+            }
+            if (itemDto.getAvailable() != null) {
+                item.setAvailable(itemDto.getAvailable());
+            }
+            itemRepository.save(item);
         return ItemMapper.toItemDto(item);
+
+        /*try {
+            Item item = itemRepository.findById(itemId).orElseThrow();
+
+            if (Objects.equals(item.getOwner().getId(), userId)) {
+
+                if (itemDto.getName() != null) {
+                    item.setName(itemDto.getName());
+                }
+                if (itemDto.getDescription() != null) {
+                    item.setDescription(itemDto.getDescription());
+                }
+                if (itemDto.getAvailable() != null) {
+                    item.setAvailable(itemDto.getAvailable());
+                }
+                return ItemMapper.toItemDto(itemRepository.save(item));
+            } else {
+                throw new ValidationException("Нельзя изменить чужую вещь");
+            }
+        } catch (Exception e) {
+            throw new ValidationException("Неверный идентификатор вещи");
+        }*/
     }
 
     //Получение вещи

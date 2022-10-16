@@ -14,32 +14,27 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> searchBookingByItemOwnerId(long id, Pageable pageable);
 
-    List<Booking> searchBookingByBookerIdAndItemIdAndEndIsBeforeAndStatus(long id, long itemId,
-                                                                          LocalDateTime time, Status status);
+    List<Booking> searchBookingByBookerIdAndItemIdAndEndIsBeforeAndStatus(long id, long itemId, LocalDateTime time,
+                                                                          Status status);
 
-    List<Booking> searchBookingByItemOwnerIdAndStartIsAfter(long id,
-                                                            LocalDateTime time,
-                                                            Pageable pageable);
+    List<Booking> searchBookingByItemOwnerIdAndStartIsAfter(long id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartAfter(long userId, LocalDateTime time,
-                                              Pageable pageable);
+    List<Booking> findByBookerIdAndStartAfter(long userId, LocalDateTime time, Pageable pageable);
 
     List<Booking> findBookingsByItemIdAndEndIsBeforeOrderByEndDesc(long id, LocalDateTime time);
 
     List<Booking> findBookingsByItemIdAndStartIsAfterOrderByStartDesc(long id, LocalDateTime time);
 
-    List<Booking> findBookingsByBookerIdAndStatus(long userId, Status status,
-                                                  Pageable pageable);
+    List<Booking> findBookingsByBookerIdAndStatus(long userId, Status status, Pageable pageable);
 
-    List<Booking> findBookingsByItemOwnerId(long id, Pageable pageable);
+    List<Booking> findBookingsByItemOwnerIdAndStatus(long id, Status status, Pageable pageable);
 
     @Query("select b " +
             "from Booking b left join User as us on b.booker.id = us.id " +
             "where us.id = ?1 " +
             "and ?2 between b.start and b.end " +
             "order by b.start DESC")
-    List<Booking> findCurrentBookingsByBookerId(long userId, LocalDateTime time,
-                                                Pageable pageable);
+    List<Booking> findCurrentBookingsByBookerId(long userId, LocalDateTime time, Pageable pageable);
 
     @Query("select b " +
             "from Booking b left join Item as i on b.item.id = i.id " +
@@ -47,13 +42,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where us.id = ?1 " +
             "and ?2 between b.start and b.end " +
             "order by b.start DESC")
-    List<Booking> findCurrentBookingsByItemOwnerId(long userId, LocalDateTime time,
-                                                   Pageable pageable);
+    List<Booking> findCurrentBookingsByItemOwnerId(long userId, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findBookingsByBookerIdAndEndIsBefore(long userId, LocalDateTime time,
-                                                       Pageable pageable);
+    List<Booking> findBookingsByBookerIdAndEndIsBefore(long userId, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findBookingsByItemOwnerIdAndEndIsBefore(long userId,
-                                                          LocalDateTime time,
-                                                          Pageable pageable);
+    List<Booking> findBookingsByItemOwnerIdAndEndIsBefore(long userId, LocalDateTime time, Pageable pageable);
 }

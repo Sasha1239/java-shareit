@@ -157,7 +157,7 @@ public class BookingRepositoryTest {
 
     @Test
     void getBookingsItemOwnerIdTest() {
-        final List<Booking> bookings = bookingRepository.findBookingsByItemOwnerId(item.getOwner().getId(),
+        final List<Booking> bookings = bookingRepository.searchBookingByItemOwnerId(item.getOwner().getId(),
                 Pageable.unpaged());
 
         assertEquals(1, bookings.size(), "Бронь отсутствует");
@@ -189,8 +189,8 @@ public class BookingRepositoryTest {
         final Booking booking1 = bookingRepository.save(new Booking(2L, LocalDateTime.now().minusDays(5),
                 LocalDateTime.now().plusDays(10), item, booker, Status.APPROVED));
 
-        final List<Booking> bookings = bookingRepository.findCurrentBookingsByItemOwnerId(item.getOwner().getId(), LocalDateTime.now(),
-                Pageable.unpaged());
+        final List<Booking> bookings = bookingRepository.findCurrentBookingsByItemOwnerId(item.getOwner().getId(),
+                LocalDateTime.now(), Pageable.unpaged());
 
         assertEquals(1, bookings.size(), "Бронь отсутствует");
         assertEquals(booking1.getId(), bookings.get(0).getId(), "Идентификаторы не совпадают");

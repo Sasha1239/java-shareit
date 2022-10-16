@@ -25,6 +25,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestMapper itemRequestMapper;
     private final UserRepository userRepository;
 
+    //Создание запроса
     @Override
     public ItemRequestDto create(ItemRequestDto itemRequestDto, Long userId) {
         ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
@@ -37,6 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestMapper.toItemRequestDto(itemRequestRepository.save(itemRequest));
     }
 
+    //Получение запросов пользователя
     @Override
     public List<ItemRequestDtoWithItems> getAll(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Неверный идентификатор пользователя"));
@@ -47,6 +49,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .collect(Collectors.toList());
     }
 
+    //Получение запроса
     @Override
     public ItemRequestDtoWithItems getItemRequest(Long userId, Long itemRequestId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Неверный идентификатор пользователя"));
@@ -57,6 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestMapper.toItemRequestDtoWithItems(itemRequest);
     }
 
+    //Получение запросов со страницами
     @Override
     public List<ItemRequestDtoWithItems> getAllWithPageable(Long userId, Integer from, Integer size) {
         int page = from / size;
