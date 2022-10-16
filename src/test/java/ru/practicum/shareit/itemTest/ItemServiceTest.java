@@ -102,7 +102,7 @@ public class ItemServiceTest {
 
     //Обновление вещи
     @Test
-    public void updateItem(){
+    public void updateItem() {
         Item item1 = createValidItemExample();
         Long itemId = item.getId();
 

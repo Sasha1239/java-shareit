@@ -12,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoSimple;
-import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -45,9 +44,6 @@ public class BookingServiceTest {
     private ItemRepository itemRepository;
     private UserRepository userRepository;
     private Booking booking;
-    private Item item;
-    private User booker;
-    private User owner;
 
 
     @BeforeEach
@@ -60,9 +56,9 @@ public class BookingServiceTest {
     }
 
     private Booking createBookingExample() {
-        owner = new User(1L, "testOwner", "testOwner@yandex.ru");
-        booker = new User(2L, "testBooker", "testBooker@yandex.ru");
-        item = new Item(1L, "testItem", "testDescription", true, owner, null);
+        User owner = new User(1L, "testOwner", "testOwner@yandex.ru");
+        User booker = new User(2L, "testBooker", "testBooker@yandex.ru");
+        Item item = new Item(1L, "testItem", "testDescription", true, owner, null);
 
         LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(1);
