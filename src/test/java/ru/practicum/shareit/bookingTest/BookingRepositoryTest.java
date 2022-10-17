@@ -36,9 +36,9 @@ public class BookingRepositoryTest {
 
     @BeforeEach
     void beforeEach() {
-        owner = userRepository.save(new User(1L, "user1", "user1@mail.ru"));
-        booker = userRepository.save(new User(2L, "user2", "user2@mail.ru"));
-        item = itemRepository.save(new Item(1L, "item", "description", true, owner,
+        owner = userRepository.save(new User(1L, "testUser1", "test@yandex.ru"));
+        booker = userRepository.save(new User(2L, "testUser2", "test1@yandex.ru"));
+        item = itemRepository.save(new Item(1L, "testItem", "testDescription", true, owner,
                 null));
         booking = bookingRepository.save(new Booking(1L, LocalDateTime.now().minusDays(5),
                 LocalDateTime.now().minusDays(2), item, booker, Status.APPROVED));

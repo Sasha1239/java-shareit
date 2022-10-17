@@ -52,10 +52,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     //Получение запроса
     @Override
     public ItemRequestDtoWithItems getItemRequest(Long userId, Long itemRequestId) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Неверный идентификатор пользователя"));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Попробуйте другой идентификатор"));
 
         ItemRequest itemRequest = itemRequestRepository.findById(itemRequestId).orElseThrow(() ->
-                new NotFoundException("Неверный идентификатор запроса"));
+                new NotFoundException("Попробуйте другой идентификатор"));
 
         return itemRequestMapper.toItemRequestDtoWithItems(itemRequest);
     }

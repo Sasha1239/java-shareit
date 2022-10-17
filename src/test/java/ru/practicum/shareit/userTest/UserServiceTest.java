@@ -132,14 +132,10 @@ public class UserServiceTest {
     //Получение несуществующего пользователя
     @Test
     public void getUnknownUser() {
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
-
-        Throwable throwable = assertThrows(NotFoundException.class, () -> userService.getUser(2L));
+        Throwable throwable = assertThrows(NotFoundException.class, () -> userService.getUser(user.getId()));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
                 "Неверный идентификатор пользователя");
-
-        verify(userRepository, times(1)).findById(anyLong());
     }
 
     //Обновление несуществующего пользователя
@@ -148,14 +144,10 @@ public class UserServiceTest {
         User user1 = createValidUserExample();
         user1.setName("test1");
 
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () ->
-                userService.update(2L, UserMapper.toUserDto(user1)));
+                userService.update(user1.getId(), UserMapper.toUserDto(user1)));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
                 "Неверный идентификатор пользователя");
-
-        verify(userRepository, times(1)).findById(anyLong());
     }
 }

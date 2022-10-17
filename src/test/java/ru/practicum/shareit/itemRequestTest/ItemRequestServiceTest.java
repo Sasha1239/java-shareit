@@ -144,15 +144,11 @@ public class ItemRequestServiceTest {
     //Создание запроса с несуществующем пользователем
     @Test
     public void createItemRequestUnknownUser() {
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор запроса"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemRequestService.create(itemRequestMapper.toItemRequestDto(itemRequest), 3L));
 
-        assertEquals("Неверный идентификатор запроса", throwable.getMessage(),
-                "Неверный идентификатор запроса");
-
-        verify(userRepository, times(1)).findById(anyLong());
+        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
+                "Неверный идентификатор пользователя");
     }
 
     //Получение запроса с несуществующем пользователем
@@ -160,42 +156,42 @@ public class ItemRequestServiceTest {
     public void getItemRequestUnknownUser() {
         Long itemRequestId = itemRequest.getId();
 
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemRequestService.getItemRequest(3L, itemRequestId));
 
-        assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
-                "Неверный идентификатор пользователя");
+        assertEquals("Попробуйте другой идентификатор", throwable.getMessage(),
+                "Попробуйте другой идентификатор");
+    }
 
-        verify(userRepository, times(1)).findById(anyLong());
+    //Получение запроса с несуществующем запросом
+    @Test
+    public void getItemRequestUnknownRequestId() {
+        Long userId = itemRequest.getRequestor().getId();
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemRequestService.getItemRequest(userId, 3L));
+
+        assertEquals("Попробуйте другой идентификатор", throwable.getMessage(),
+                "Попробуйте другой идентификатор");
     }
 
     //Получение всех запросов с несуществующем пользователем
     @Test
     public void getAllItemRequestsUnknownUser() {
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemRequestService.getAll(3L));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
                 "Неверный идентификатор пользователя");
-
-        verify(userRepository, times(1)).findById(anyLong());
     }
 
     //Получение всех запросов с страниц с несуществующим пользователем
     @Test
     public void getAllItemRequestWithPageableUnknownUser() {
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemRequestService.getAllWithPageable(3L, 0, 20));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
                 "Неверный идентификатор пользователя");
-
-        verify(userRepository, times(1)).findById(anyLong());
     }
 }

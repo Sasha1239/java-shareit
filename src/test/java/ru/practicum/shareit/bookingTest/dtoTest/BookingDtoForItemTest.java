@@ -1,4 +1,4 @@
-package ru.practicum.shareit.bookingTest;
+package ru.practicum.shareit.bookingTest.dtoTest;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.practicum.shareit.booking.enums.Status.APPROVED;
 
-public class BookingDtoTest {
+public class BookingDtoForItemTest {
     private final BookingDtoForItem bookingDtoForItem = new BookingDtoForItem(1L, 2L);
     private Booking booking;
 

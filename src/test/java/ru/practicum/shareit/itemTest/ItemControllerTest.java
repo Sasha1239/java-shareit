@@ -87,6 +87,32 @@ public class ItemControllerTest {
         verify(itemService, times(1)).create(userId, itemDto);
     }
 
+    //Обновление вещи
+    @Test
+    public void updateItem() throws Exception {
+        ItemDto itemDto = ItemMapper.toItemDto(item);
+
+        Item item1 = createValidItemExample();
+        ItemDto itemDto1 = ItemMapper.toItemDto(item1);
+
+        itemDto1.setName("testItem1");
+
+        itemService.create(item.getOwner().getId(), itemDto);
+
+        when(itemService.update(item.getOwner().getId(), itemDto.getId(), itemDto1)).thenReturn(itemDto1);
+        mockMvc.perform(patch("/items/1")
+                        .header("X-Sharer-User-Id", item.getOwner().getId())
+                        .content(objectMapper.writeValueAsString(itemDto1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\": 1,\"name\": \"testItem1\"," +
+                        " \"description\": \"itemDescription\", \"available\": true, \"requestId\": 1}"));
+
+        verify(itemService, times(1)).update(item.getOwner().getId(), itemDto.getId(), itemDto1);
+    }
+
     //Получение вещи
     @Test
     public void getItemById() throws Exception {

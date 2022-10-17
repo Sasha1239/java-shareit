@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
@@ -197,6 +196,16 @@ public class ItemServiceTest {
         verify(itemRepository, times(1)).search(text, PageRequest.of(0, 20));
     }
 
+    //Поиск вещи (пустой)
+    @Test
+    public void searchEmpty() {
+        String text = " ";
+
+        final List<ItemDto> itemDtoList = itemService.search(text, 0, 20);
+
+        assertEquals(0, itemDtoList.size(), "Вещь найдена");
+    }
+
     //Создание комментария к вещи
     @Test
     public void createCommentForItem() {
@@ -229,15 +238,11 @@ public class ItemServiceTest {
     //Создание вещи с несуществующем пользователем
     @Test
     public void createItemUnknownUser() {
-        when(userRepository.findById(anyLong())).thenThrow(new ValidationException("Неверный идентификатор пользователя"));
-
-        Throwable throwable = assertThrows(ValidationException.class, () ->
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemService.create(3L, ItemMapper.toItemDto(item)));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
-                "Неверный идентификатор пользователя");
-
-        verify(userRepository, times(1)).findById(anyLong());
+                "Текст ошибки валидации разный");
     }
 
     //Получение несуществующей вещи
@@ -245,29 +250,61 @@ public class ItemServiceTest {
     public void getUnknownItem() {
         Long userId = item.getOwner().getId();
 
-        when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор вещи"));
-
         Throwable throwable = assertThrows(NotFoundException.class, () -> itemService.getItem(2L, userId));
 
         assertEquals("Неверный идентификатор вещи", throwable.getMessage(),
-                "Неверный идентификатор вещи");
+                "Текст ошибки валидации разный");
     }
 
     //Обновление несуществующей вещи
     @Test
-    public void updateItemUnknownUser() {
+    public void updateUnknownItem() {
         Item item1 = createValidItemExample();
         item1.setName("testItem1");
-
-        when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор вещи"));
 
         Throwable throwable = assertThrows(NotFoundException.class, () ->
                 itemService.update(user.getId(), 3L, ItemMapper.toItemDto(item1)));
 
         assertEquals("Неверный идентификатор вещи", throwable.getMessage(),
-                "Неверный идентификатор вещи");
+                "Текст ошибки валидации разный");
+    }
 
-        verify(itemRepository, times(1)).findById(anyLong());
+    //Обновление чужой вещи
+    @Test
+    public void updateItemNoOwner() {
+        Item item1 = createValidItemExample();
+        item1.setName("testItem1");
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemService.update(100L, item.getId(), ItemMapper.toItemDto(item1)));
+
+        assertEquals("Нельзя изменить чужую вещь", throwable.getMessage(),
+                "Текст ошибки валидации разный");
+    }
+
+    //Обновление несуществующей вещи
+    @Test
+    public void updateItemNullParam() {
+        Long itemId = item.getId();
+        Item item1 = createValidItemExample();
+        item1.setName("testItem1");
+        item1.setName(null);
+        item1.setDescription(null);
+        item1.setAvailable(null);
+
+        when(itemRepository.save(any(Item.class))).thenReturn(item1);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        ItemDto itemDto = itemService.update(user.getId(), itemId, ItemMapper.toItemDto(item1));
+
+        assertEquals(itemId, itemDto.getId(), "Идентификаторы не совпадают");
+        assertEquals("testItem", itemDto.getName(), "Имена не совпадают");
+        assertEquals("itemDescription", itemDto.getDescription(), "Описания не совпадают");
+        assertEquals(true, itemDto.getAvailable(), "Статусы не совпадают");
+
+        verify(itemRepository, times(1)).save(any(Item.class));
     }
 
     //Создание комментария за несуществующего пользователя
@@ -278,7 +315,6 @@ public class ItemServiceTest {
         Comment comment = createValidCommentExample(item, userWriteComment);
 
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("Неверный идентификатор пользователя"));
 
         CommentDto commentDto1 = CommentMapper.toCommentDto(comment);
 
@@ -286,8 +322,22 @@ public class ItemServiceTest {
                 itemService.createComment(3L, item.getId(), commentDto1));
 
         assertEquals("Неверный идентификатор пользователя", throwable.getMessage(),
-                "Неверный идентификатор пользователя");
+                "Текст ошибки валидации разный");
+    }
 
-        verify(userRepository, times(1)).findById(anyLong());
+    //Создание комментария к несуществующей вещи
+    @Test
+    public void createCommentUnknownItem() {
+        User userWriteComment = item.getItemRequest().getRequestor();
+
+        Comment comment = createValidCommentExample(item, userWriteComment);
+
+        CommentDto commentDto1 = CommentMapper.toCommentDto(comment);
+
+        Throwable throwable = assertThrows(NotFoundException.class, () ->
+                itemService.createComment(3L, 100L, commentDto1));
+
+        assertEquals("Неверный идентификатор вещи", throwable.getMessage(),
+                "Текст ошибки валидации разный");
     }
 }
