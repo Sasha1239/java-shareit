@@ -8,11 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoWithItems;
@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Profile("test")
 public class ItemRequestControllerTest {
     @Mock
     private ItemRequestService itemRequestService;
@@ -42,13 +43,11 @@ public class ItemRequestControllerTest {
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ItemRequestMapper itemRequestMapper;
-
     private ItemRequest itemRequest;
 
     @BeforeEach
     void beforeEach() {
-        ItemRepository itemRepository = mock(ItemRepository.class);
-        itemRequestMapper = new ItemRequestMapper(itemRepository);
+        itemRequestMapper = new ItemRequestMapper();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(itemRequestController)
                 .build();

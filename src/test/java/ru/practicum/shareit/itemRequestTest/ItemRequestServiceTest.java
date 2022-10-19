@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,27 +30,31 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Profile("test")
 public class ItemRequestServiceTest {
     private ItemRequestService itemRequestService;
     private ItemRequestRepository itemRequestRepository;
     private ItemRequestMapper itemRequestMapper;
     private UserRepository userRepository;
     private ItemRequest itemRequest;
+    private User user;
 
     @BeforeEach
     public void beforeEach() {
         itemRequestRepository = mock(ItemRequestRepository.class);
         userRepository = mock(UserRepository.class);
         ItemRepository itemRepository = mock(ItemRepository.class);
-        itemRequestMapper = new ItemRequestMapper(itemRepository);
-        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, itemRequestMapper, userRepository);
+        itemRequestMapper = new ItemRequestMapper();
+        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, itemRepository, itemRequestMapper,
+                userRepository);
         itemRequest = createItemRequestExample();
     }
 
     private ItemRequest createItemRequestExample() {
-        User user = new User(1L, "test", "test@yandex.ru");
+        user = new User(1L, "test", "test@yandex.ru");
         return new ItemRequest(1L, "itemRequestDescription", user, LocalDateTime.now());
     }
 
@@ -168,8 +174,10 @@ public class ItemRequestServiceTest {
     public void getItemRequestUnknownRequestId() {
         Long userId = itemRequest.getRequestor().getId();
 
+        when(userRepository.findById(anyLong())).thenReturn((Optional.of(user)));
+
         Throwable throwable = assertThrows(NotFoundException.class, () ->
-                itemRequestService.getItemRequest(userId, 3L));
+                itemRequestService.getItemRequest(userId, 100L));
 
         assertEquals("Попробуйте другой идентификатор", throwable.getMessage(),
                 "Попробуйте другой идентификатор");

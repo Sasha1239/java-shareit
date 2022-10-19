@@ -1,6 +1,7 @@
 package ru.practicum.shareit.bookingTest.dtoTest;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.practicum.shareit.booking.enums.Status.APPROVED;
-
+@SpringBootTest
 public class ToBookingTest {
 
     private BookingDto createBookingDtoExample() {

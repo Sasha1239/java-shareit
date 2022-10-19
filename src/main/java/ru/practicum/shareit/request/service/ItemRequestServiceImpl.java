@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoWithItems;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
@@ -14,6 +17,7 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
+    private final ItemRepository itemRepository;
     private final ItemRequestMapper itemRequestMapper;
     private final UserRepository userRepository;
 
@@ -43,10 +48,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDtoWithItems> getAll(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Неверный идентификатор пользователя"));
 
-        return itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(userId)
-                .stream()
-                .map(itemRequestMapper::toItemRequestDtoWithItems)
-                .collect(Collectors.toList());
+        List<ItemRequestDtoWithItems> itemRequestDtoWithItemsList = new ArrayList<>();
+
+        itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(userId)
+                .forEach(itemRequest -> itemRequestDtoWithItemsList.add(findAllByItemRequestId(itemRequest)));
+
+        return itemRequestDtoWithItemsList;
     }
 
     //Получение запроса
@@ -57,7 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = itemRequestRepository.findById(itemRequestId).orElseThrow(() ->
                 new NotFoundException("Попробуйте другой идентификатор"));
 
-        return itemRequestMapper.toItemRequestDtoWithItems(itemRequest);
+        return findAllByItemRequestId(itemRequest);
     }
 
     //Получение запросов со страницами
@@ -68,10 +75,27 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Неверный идентификатор пользователя"));
 
-        return itemRequestRepository.findAll(pageable)
+        List<ItemRequest> requestList = itemRequestRepository.findAll(pageable)
                 .stream()
                 .filter(itemRequest -> !Objects.equals(itemRequest.getRequestor().getId(), userId))
-                .map(itemRequestMapper::toItemRequestDtoWithItems)
                 .collect(Collectors.toList());
+
+        List<ItemRequestDtoWithItems> itemRequestDtoWithItemsList = new ArrayList<>();
+
+        requestList.forEach(itemRequest -> itemRequestDtoWithItemsList.add(findAllByItemRequestId(itemRequest)));
+
+        return itemRequestDtoWithItemsList;
+    }
+
+    private ItemRequestDtoWithItems findAllByItemRequestId(ItemRequest itemRequest) {
+        ItemRequestDtoWithItems dtoWithItems = itemRequestMapper.toItemRequestDtoWithItems(itemRequest);
+
+        List<ItemDto> items = itemRepository.findAllByItemRequestId(dtoWithItems.getId())
+                .stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+
+        if (!items.isEmpty()) {
+            dtoWithItems.setItems(items);
+        }
+        return dtoWithItems;
     }
 }
