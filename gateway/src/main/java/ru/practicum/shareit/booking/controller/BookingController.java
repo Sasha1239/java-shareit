@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingItemRequestDto;
-import ru.practicum.shareit.booking.enums.Status;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -38,10 +37,11 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                                         @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                         @RequestParam(defaultValue = "ALL") String state,
                                          @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                          @RequestParam(defaultValue = "20") @Positive int size) {
-        return bookingClient.getAll(userId, Status.valueOf(state), from, size);
+
+        return bookingClient.getAll(userId, state, from, size);
     }
 
 
@@ -50,7 +50,8 @@ public class BookingController {
                                                        @RequestParam(defaultValue = "ALL") String state,
                                                        @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                        @RequestParam(defaultValue = "20") @Positive int size) {
-        return bookingClient.getAllBookingByOwner(userId, Status.valueOf(state), from, size);
+
+        return bookingClient.getAllBookingByOwner(userId, state, from, size);
     }
 
     @PatchMapping("/{bookingId}")

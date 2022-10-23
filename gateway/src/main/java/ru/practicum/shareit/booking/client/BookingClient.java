@@ -8,7 +8,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookingItemRequestDto;
-import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.client.BaseClient;
 
 import java.util.Map;
@@ -22,7 +21,8 @@ public class BookingClient extends BaseClient {
         super(builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                .build());
+                .build()
+        );
     }
 
     public ResponseEntity<Object> create(long userId, BookingItemRequestDto bookingItemRequestDto) {
@@ -33,14 +33,14 @@ public class BookingClient extends BaseClient {
         return get("/" + bookingId, userId);
     }
 
-    public ResponseEntity<Object> getAll(long userId, Status status, int from, int size) {
-        Map<String, Object> parameters = Map.of("state", status.name(), "from", from, "size", size);
+    public ResponseEntity<Object> getAll(long userId, String status, int from, int size) {
+        Map<String, Object> parameters = Map.of("state", status, "from", from, "size", size);
 
         return get("?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getAllBookingByOwner(long userId, Status status, Integer from, Integer size) {
-        Map<String, Object> parameters = Map.of("state", status.name(), "from", from, "size", size);
+    public ResponseEntity<Object> getAllBookingByOwner(long userId, String status, Integer from, Integer size) {
+        Map<String, Object> parameters = Map.of("state", status, "from", from, "size", size);
 
         return get("/owner?state={state}&from={from}&size={size}", userId, parameters);
     }
