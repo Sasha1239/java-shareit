@@ -16,4 +16,11 @@ public class ExHandler {
         log.error("Unknown state: UNSUPPORTED_STATUS {}", e.getMessage());
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingException(ValidationException e) {
+        log.error("Storage error - incorrect request" + "\n" + e.getMessage());
+        return new ErrorResponse(e.getMessage(), "incorrect request");
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingItemRequestDto;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -24,6 +25,10 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") long userId,
                                          @Valid @RequestBody BookingItemRequestDto bookingItemRequestDto) {
+        if (bookingItemRequestDto.getEnd().isBefore(bookingItemRequestDto.getStart())) {
+            throw new ValidationException("Время окончания не может быть больше времени начала");
+        }
+
         log.info("Получен запрос к эндпоинту: '{} {}', Бронирование: ItemId: {}", "POST", "/bookings",
                 bookingItemRequestDto.getItemId());
         return bookingClient.create(userId, bookingItemRequestDto);

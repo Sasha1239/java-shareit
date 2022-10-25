@@ -543,18 +543,6 @@ public class BookingServiceTest {
                 "Текст ошибки валидации разный");
     }
 
-    //Время конца раньше времени начала бронирования
-    @Test
-    public void createBookingWithInvalidLocalDateTimeEnd() {
-        LocalDateTime endError = booking.getEnd().minusDays(20);
-        booking.setEnd(endError);
-
-        Throwable throwable = assertThrows(ValidationException.class, () ->
-                bookingService.create(toBookingDtoSimple(booking), booking.getBooker().getId()));
-        assertEquals("Время окончания не может быть больше времени начала", throwable.getMessage(),
-                "Текст ошибки валидации разный");
-    }
-
     //Получение всех броней со статусом UNSUPPORTED_STATUS
     @Test
     public void getAllBookingUnsupportedStatus() {
